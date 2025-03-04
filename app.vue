@@ -1,6 +1,8 @@
 <template>
-  <div class="text-9xl bg-green-50">
-    <NuxtRouteAnnouncer />
-    <NuxtWelcome />
+  <div class=" ">
+    <Navbar/>
+    <div class="max-w-6xl mx-auto">
+      <NuxtPage/>
+    </div>
   </div>
 </template>
