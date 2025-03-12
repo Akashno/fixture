@@ -11,6 +11,10 @@ const tournamentSchema = new mongoose.Schema({
     ref: 'Team',
     required: true
   }],
+  matches: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Match'
+  }],
   createdAt: {
     type: Date,
     default: Date.now

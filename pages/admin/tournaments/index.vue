@@ -1,32 +1,25 @@
 <template>
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-sm font-bold">Tournaments</h1>
+  <div class="py-8">
+<div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Tournaments</h1>
       <Button @click="isDialogOpen = true">Create Tournament</Button>
     </div>
-    <div class="space-y-4">
-      <div v-for="tournament in tournaments" :key="tournament._id" class="border-b pb-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+    
+    <div class="space-y-4 mt-10">
+      <div v-for="tournament in tournaments" :key="tournament._id" class=" bg-gray-100 rounded-lg p-3 ">
+        <div class="flex justify-between gap-4 items-center">
           <div class="col-span-1">
             <span class="text-gray-900 block text-center sm:text-left">{{ tournament.name }}</span>
           </div>
           <div class="col-span-1 text-center">
             <NuxtLink
-              :to="`/fixtures/${tournament._id}`"
+              :to="`/admin/tournaments/${tournament._id}`"
               class="text-blue-600 hover:text-blue-800 inline-block"
             >
               Fixtures & Results
             </NuxtLink>
           </div>
-          <div class="col-span-1 text-right">
-            <Button
-              variant="outline"
-              size="sm"
-              @click="confirmDelete(tournament)"
-            >
-            <Icon name="lucide:trash"/>
-            </Button>
-          </div>
+          
         </div>
       </div>
     </div>
@@ -96,23 +89,4 @@ const handleSaveTournament = async (tournament) => {
   }
 }
 
-const confirmDelete = (tournament) => {
-  tournamentToDelete.value = tournament
-  isDeleteDialogOpen.value = true
-}
-
-const deleteTournament = async () => {
-  if (tournamentToDelete.value) {
-    try {
-      await $fetch(`/api/tournaments/${tournamentToDelete.value._id}`, {
-        method: 'DELETE'
-      })
-      await refreshNuxtData('tournaments')
-      isDeleteDialogOpen.value = false
-      tournamentToDelete.value = null
-    } catch (error) {
-      console.error('Failed to delete tournament:', error)
-    }
-  }
-}
 </script>

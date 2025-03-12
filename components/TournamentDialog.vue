@@ -36,6 +36,14 @@ const handleSave = () => {
     selectedTeams: []
   }
 }
+
+const selectAllTeams = () => {
+  if (tournament.value.selectedTeams.length === props.teams.length) {
+    tournament.value.selectedTeams = []
+  } else {
+    tournament.value.selectedTeams = props.teams.map(team => team._id)
+  }
+}
 </script>
 
 <template>
@@ -57,8 +65,19 @@ const handleSave = () => {
           />
         </div>
         <div class="grid gap-4">
-          <label class="text-sm font-medium">Select Teams</label>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto p-2">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-medium">Select Teams</label>
+            <div class="flex items-center gap-2">
+              <label class="text-sm">Select All</label>
+              <input
+                type="checkbox"
+                :checked="tournament.selectedTeams.length === teams.length"
+                @change="selectAllTeams"
+                class="cursor-pointer"
+              >
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto">
             <div
               v-for="team in teams"
               :key="team._id"
@@ -76,12 +95,11 @@ const handleSave = () => {
                 class="absolute top-2 right-2"
                 @click.stop
               >
-
-                <img
-                  :src="team.logo"
-                  :alt="team.name"
-                  class="w-4 h-4 md:size-12 object-contain rounded-full"
-                >
+              <img
+                :src="team.logo"
+                :alt="team.name"
+                class="w-4 h-4 md:size-12 object-contain rounded-full"
+              >
               <div class="flex items-center gap-3">
                 <div>
                   <h3 class="font-medium text-sm">{{ team.name }}</h3>
@@ -92,8 +110,7 @@ const handleSave = () => {
           </div>
         </div>
       </div>
-
-<span class="text-sm text-gray-500">Selected Teams: {{ tournament.selectedTeams.length }}</span>
+      <span class="text-sm text-gray-500">Selected Teams: {{ tournament.selectedTeams.length }}</span>
       <DialogFooter>
         <Button @click="handleSave">Create Tournament</Button>
       </DialogFooter>
