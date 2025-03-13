@@ -5,6 +5,7 @@ import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { type ButtonVariants, buttonVariants } from '.'
 
 interface Props extends PrimitiveProps {
+  loading?: boolean
   variant?: ButtonVariants['variant']
   size?: ButtonVariants['size']
   class?: HTMLAttributes['class']
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
     :as-child="asChild"
     :class="cn(buttonVariants({ variant, size }), props.class)"
   >
+  <Icon v-if="loading" name="fluent:spinner-ios-16-regular" class="animate-spin"/>
     <slot />
   </Primitive>
 </template>

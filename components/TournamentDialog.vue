@@ -30,6 +30,9 @@ const tournament = ref<Tournament>({
 })
 
 const handleSave = () => {
+  if(!tournament.value.name) {
+    return alert('Please enter a tournament name')
+  } 
   emit('save', tournament.value)
   tournament.value = {
     name: '',
@@ -62,6 +65,7 @@ const selectAllTeams = () => {
             v-model="tournament.name"
             class="col-span-4 flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
             placeholder="Tournament name"
+            required
           />
         </div>
         <div class="grid gap-4">

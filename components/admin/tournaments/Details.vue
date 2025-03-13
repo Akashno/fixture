@@ -3,7 +3,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 const route = useRoute()
 const { data: tournament } = await useFetch(`/api/tournaments/${route.params.id}`)
-const { data: fixtures } = await useFetch(`/api/tournaments/${route.params.id}/fixtures`,{ transform: (res) => res.data })
+const { data: fixtures } = await useLazyAsyncData('fixtures', () => 
+  $fetch(`/api/tournaments/${route.params.id}/fixtures`).then(res => res.data)
+)
+
+const isGenerating = ref(false)
+const generateFixtures = async () => {
+  isGenerating.value = true
+  try {
+    await $fetch(`/api/tournaments/${route.params.id}/fixtures`, {
+      method: 'POST'
+    })
+    refreshNuxtData('tournament')
+    refreshNuxtData('fixtures')
+  } catch (error) {
+    console.error('Failed to generate fixtures:', error)
+  } finally {
+    isGenerating.value = false
+  }
+}
 </script>
 
 <template>
@@ -77,7 +95,12 @@ const { data: fixtures } = await useFetch(`/api/tournaments/${route.params.id}/f
                 </div>
               </template>
             </div>
-            <p v-else class="text-center text-gray-500">No fixtures available yet</p>
+            <p v-else class="text-center text-gray-500">
+
+<Button @click="generateFixtures" size="sm" :loading="isGenerating" v-if="!tournament?.matches?.length" >
+            Generate Fixtures
+        </Button>
+            </p>
           </div>
         </TabsContent>
       </Tabs>

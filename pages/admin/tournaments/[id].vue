@@ -12,9 +12,7 @@
           <Icon name="lucide:trash" class="mr-2" />
           Delete Tournament
         </Button>
-        <Button @click="generateFixtures" size="sm" >
-            Generate Fixtures
-        </Button>
+        
         </div>
 <!-- Delete Confirmation Dialog -->
 <Dialog :open="isDeleteDialogOpen" @update:open="isDeleteDialogOpen = $event">
@@ -46,18 +44,16 @@
 const route = useRoute()
 const router = useRouter()
 
-const tournament = ref(null)
 const isDeleteDialogOpen = ref(false)
-const isGenerating = ref(false)
 
-async function fetchTournament() {
-  try {
-    const { data } = await useFetch(`/api/tournaments/${route.params.id}`)
-    tournament.value = data.value
-  } catch (error) {
-    console.error('Error fetching tournament:', error)
+const { data: tournament } = useLazyAsyncData(
+  'tournament',
+  () => $fetch(`/api/tournaments/${route.params.id}`),
+  {
+    immediate: true,
+    watch: [() => route.params.id]
   }
-}
+)
 
 const confirmDelete = () => {
   isDeleteDialogOpen.value = true
@@ -74,22 +70,6 @@ const handleDelete = async () => {
   }
 }
 
-const generateFixtures = async () => {
-  isGenerating.value = true
-  try {
-    await $fetch(`/api/tournaments/${route.params.id}/fixtures`, {
-      method: 'POST'
-    })
-    await fetchTournament()
-  } catch (error) {
-    console.error('Failed to generate fixtures:', error)
-  } finally {
-    isGenerating.value = false
-  }
-}
 
-onMounted(() => {
-  fetchTournament()
-})
 </script>
 
