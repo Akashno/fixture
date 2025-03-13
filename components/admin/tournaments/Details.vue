@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import MatchDialog from '@/components/MatchDialog.vue'
 
 const route = useRoute()
 const { data: tournament } = await useFetch(`/api/tournaments/${route.params.id}`)
@@ -21,6 +22,14 @@ const generateFixtures = async () => {
   } finally {
     isGenerating.value = false
   }
+}
+
+const selectedMatch = ref(null)
+const isMatchDialogOpen = ref(false)
+
+const handleMatchClick = (match) => {
+  selectedMatch.value = match
+  isMatchDialogOpen.value = true
 }
 </script>
 
@@ -72,7 +81,7 @@ const generateFixtures = async () => {
               <template v-for="(match, index) in fixtures" :key="match._id" class="bg">
                 <hr v-if="index !== 0 && fixtures[index - 1].round !== match.round" class="my-8">
                 <h2 v-if="fixtures[index - 1]?.round !== match?.round" class="text-2xl font-bold text-gray-800 mb-4">Round {{ match?.round }}</h2>
-                <div class="border rounded-lg p-4">
+                <div class="border rounded-lg p-4 cursor-pointer hover:bg-gray-50" @click="handleMatchClick(match)">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-x-3 flex-1">
                       <img :src="match.homeTeam.logo" :alt="match.homeTeam.name" class="size-10 object-contain">
@@ -96,14 +105,20 @@ const generateFixtures = async () => {
               </template>
             </div>
             <p v-else class="text-center text-gray-500">
-
-<Button @click="generateFixtures" size="sm" :loading="isGenerating" v-if="!tournament?.matches?.length" >
-            Generate Fixtures
-        </Button>
+              <Button @click="generateFixtures" size="sm" :loading="isGenerating" v-if="!tournament?.matches?.length">
+                Generate Fixtures
+              </Button>
             </p>
           </div>
         </TabsContent>
       </Tabs>
+
+      <MatchDialog
+        :key="selectedMatch._id"
+        v-if="selectedMatch"
+        v-model:isOpen="isMatchDialogOpen"
+        :match="selectedMatch"
+      />
     </div>
     <div v-else class="text-center py-10">
       <p>Loading tournament details...</p>

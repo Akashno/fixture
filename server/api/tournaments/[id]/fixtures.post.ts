@@ -33,25 +33,27 @@ export default defineEventHandler(async (event) => {
         const homeTeamIndex = teamIndices[match]
         const awayTeamIndex = teamIndices[totalTeams - 1 - match]
 
-        const match1 = new Match({
-          tournament: tournamentId,
-          homeTeam: teams[homeTeamIndex]._id,
-          awayTeam: teams[awayTeamIndex]._id,
-          status: 'scheduled',
-          round: round + 1
-        })
+        // Only create and push matches if home and away teams are different
+        if (teams[homeTeamIndex]._id.toString() !== teams[awayTeamIndex]._id.toString()) {
+          const match1 = new Match({
+            tournament: tournamentId,
+            homeTeam: teams[homeTeamIndex]._id,
+            awayTeam: teams[awayTeamIndex]._id,
+            status: 'scheduled',
+            round: round + 1
+          })
 
-        const match2 = new Match({
-          tournament: tournamentId,
-          homeTeam: teams[awayTeamIndex]._id,
-          awayTeam: teams[homeTeamIndex]._id,
-          status: 'scheduled',
-          round: rounds + round + 1 
-        })
+          const match2 = new Match({
+            tournament: tournamentId,
+            homeTeam: teams[awayTeamIndex]._id,
+            awayTeam: teams[homeTeamIndex]._id,
+            status: 'scheduled',
+            round: rounds + round + 1 
+          })
 
-
-        matchesOne.push(match1)
-        matchesTwo.push(match2)
+          matchesOne.push(match1)
+          matchesTwo.push(match2)
+        }
       }
     }
 

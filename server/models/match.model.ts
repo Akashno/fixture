@@ -1,5 +1,17 @@
 import mongoose from 'mongoose'
 
+const scoreSchema = new mongoose.Schema({
+  runs: {
+    type: Number,
+    default: 0
+  },
+  wickets: {
+    type: Number,
+    default: 0,
+    max: 10
+  }
+})
+
 const matchSchema = new mongoose.Schema({
   tournament: {
     type: mongoose.Schema.Types.ObjectId,
@@ -16,13 +28,11 @@ const matchSchema = new mongoose.Schema({
     ref: 'Team',
     required: true
   },
-  homeScore: {
-    type: Number,
-    default: 0
-  },
-  awayScore: {
-    type: Number,
-    default: 0
+  homeScore: scoreSchema,
+  awayScore: scoreSchema,
+  winner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Team'
   },
   status: {
     type: String,
@@ -43,7 +53,6 @@ const matchSchema = new mongoose.Schema({
   round:{
     type:Number,
     default:1
-
   }
 })
 
