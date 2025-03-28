@@ -1,5 +1,7 @@
 {
   "version": 2,
   "builds": [{ "src": "server/**", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": ".output/server/index.mjs" }]
+  "routes": [{ "src": "/(.*)", "dest": ".output/server/index.mjs" }],
+  "buildCommand": "NITRO_PRESET=vercel-edge nuxt build",
+  "ignoreCommand": "echo 'Skip type checking'"
 }
