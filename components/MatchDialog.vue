@@ -73,7 +73,7 @@ const handleSubmit = async () => {
 
   try {
     isLoading.value = true
-    const { data } = await useFetch(`/api/matches/${props.match._id}/score`, {
+    const { data } = await useFetch(`/api/matches/${props.match._id}`, {
       method: 'PUT',
       body: {
         homeScore: homeScore.value,
