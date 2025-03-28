@@ -3,7 +3,8 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   typescript: {
-    typeCheck: false
+    typeCheck: false,
+    strict: false
 
   },
   devtools: { enabled: true },
