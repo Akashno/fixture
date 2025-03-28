@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "outputDirectory": "dist",
+  "buildCommand": "npx nuxi generate",
+  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+}
