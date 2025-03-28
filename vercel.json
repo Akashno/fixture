@@ -1,3 +1,5 @@
 {
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+  "version": 2,
+  "builds": [{ "src": "server/**", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": ".output/server/index.mjs" }]
 }
