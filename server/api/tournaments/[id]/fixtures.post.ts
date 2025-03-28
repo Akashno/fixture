@@ -43,16 +43,16 @@ export default defineEventHandler(async (event) => {
             round: round + 1
           })
 
-          const match2 = new Match({
-            tournament: tournamentId,
-            homeTeam: teams[awayTeamIndex]._id,
-            awayTeam: teams[homeTeamIndex]._id,
-            status: 'scheduled',
-            round: rounds + round + 1 
-          })
+          // const match2 = new Match({
+          //   tournament: tournamentId,
+          //   homeTeam: teams[awayTeamIndex]._id,
+          //   awayTeam: teams[homeTeamIndex]._id,
+          //   status: 'scheduled',
+          //   round: rounds + round + 1 
+          // })
 
           matchesOne.push(match1)
-          matchesTwo.push(match2)
+          // matchesTwo.push(match2)
         }
       }
     }

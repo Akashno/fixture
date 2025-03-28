@@ -7,6 +7,9 @@ const { data: tournament } = await useFetch(`/api/tournaments/${route.params.id}
 const { data: fixtures } = await useLazyAsyncData('fixtures', () => 
   $fetch(`/api/tournaments/${route.params.id}/fixtures`).then(res => res.data)
 )
+const { data: points } = await useLazyAsyncData('points', () =>
+  $fetch(`/api/tournaments/${route.params.id}/points`).then(res => res.data)
+)
 
 const isGenerating = ref(false)
 const generateFixtures = async () => {
@@ -15,7 +18,7 @@ const generateFixtures = async () => {
     await $fetch(`/api/tournaments/${route.params.id}/fixtures`, {
       method: 'POST'
     })
-    refreshNuxtData('tournament')
+    refreshNuxtData('tournaments')
     refreshNuxtData('fixtures')
   } catch (error) {
     console.error('Failed to generate fixtures:', error)
@@ -51,25 +54,31 @@ const handleMatchClick = (match) => {
                   <th class="py-2 text-center">W</th>
                   <th class="py-2 text-center">D</th>
                   <th class="py-2 text-center">L</th>
+                  <th class="py-2 text-center">NRR</th>
+                  <th class="py-2 text-center">Total Runs / Conceded</th>
                   <th class="py-2 text-center">Points</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="team in tournament.selectedTeams" :key="team._id" class="border-b">
+                <tr v-for="point in points" :key="point?._id" class="border-b">
                   <td class="py-2 flex items-center gap-x-2">
                     <div>
-                      <img :src="team.logo" alt="" class="size-10 object-contain">
+                      <img :src="point?.team.logo" alt="" class="size-10 object-contain">
                     </div>
                     <div>
-                      <p>{{ team.name }}</p>
-                      <p class="text-sm text-gray-800">{{ team.owner }}</p>
+                      <p>{{ point?.team.name }}</p>
+                      <p class="text-sm text-gray-800">{{ point?.team.owner }}</p>
                     </div>
                   </td>
-                  <td class="py-2 text-center">0</td>
-                  <td class="py-2 text-center">0</td>
-                  <td class="py-2 text-center">0</td>
-                  <td class="py-2 text-center">0</td>
-                  <td class="py-2 text-center">0</td>
+                  <td class="py-2 text-center">{{ point.matchesPlayed }}</td>
+                  <td class="py-2 text-center">{{ point.matchesWon }}</td>
+                  <td class="py-2 text-center">{{ point.matchesDrawn }}</td>
+                  <td class="py-2 text-center">{{ point.matchesLost }}</td>
+
+                  <td class="py-2 text-center" >{{ point.runsScored ?  ((point.runsScored / point.oversFaced) - (point.runsConceded / point.oversBowled))?.toFixed(2) : 0 }}</td>
+                  <td class="py-2 text-center">{{ point.runsScored }} : {{point.runsConceded}}</td>
+                  <td class="py-2 text-center">{{ point.points }}</td>
+
                 </tr>
               </tbody>
             </table>
@@ -88,19 +97,37 @@ const handleMatchClick = (match) => {
                       <div>
                         <p class="font-medium">{{ match.homeTeam.name }}</p>
                         <p class="text-sm text-gray-600">{{ match.homeTeam.owner }}</p>
+                        <p v-if="match.homeScore" class="text-sm font-medium text-gray-800">
+                          {{ match.homeScore.runs }}/{{ match.homeScore.wickets }} 
+                          ({{ match.homeScore.overs }} ov)
+                        </p>
                       </div>
                     </div>
                     <div class="px-4">
-                      <span class="text-sm font-medium">vs</span>
+                      <div v-if="match.winner" class="mt-2 text-sm text-center text-green-600">
+                        <span>
+                          Winner: {{ match.winner === match.homeTeam._id ? `${match.homeTeam.name} (${match.homeTeam.owner})` : `${match.awayTeam.name} (${match.awayTeam.owner})` }}
+                        </span>
+                      </div>
+                      <div v-else-if="match.homeScore && match.awayScore" class="mt-2 text-sm text-center text-gray-600">
+                        <span>Match Drawn</span>
+                      </div>
+                      <span v-else class="text-sm font-medium">vs</span>
                     </div>
                     <div class="flex items-center gap-x-3 flex-1 justify-end text-right">
                       <div>
                         <p class="font-medium">{{ match.awayTeam.name }}</p>
                         <p class="text-sm text-gray-600">{{ match.awayTeam.owner }}</p>
+                        <p v-if="match.awayScore" class="text-sm font-medium text-gray-800">
+                          {{ match.awayScore.runs }}/{{ match.awayScore.wickets }}
+                          ({{ match.awayScore.overs }} ov)
+                        </p>
                       </div>
                       <img :src="match.awayTeam.logo" :alt="match.awayTeam.name" class="size-10 object-contain">
                     </div>
                   </div>
+                  
+                  
                 </div>
               </template>
             </div>
@@ -115,6 +142,7 @@ const handleMatchClick = (match) => {
 
       <MatchDialog
         :key="selectedMatch._id"
+        
         v-if="selectedMatch"
         v-model:isOpen="isMatchDialogOpen"
         :match="selectedMatch"

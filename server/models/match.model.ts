@@ -9,6 +9,10 @@ const scoreSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     max: 10
+  },
+  overs: {
+    type: Number,
+    default: 0
   }
 })
 

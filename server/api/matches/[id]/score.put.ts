@@ -1,4 +1,5 @@
 import { Match } from '~/server/models/match.model'
+import { updateTournamentStats } from '~/server/utils/tournament'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -14,16 +15,29 @@ export default defineEventHandler(async (event) => {
         message: 'Both home and away scores are required'
       })
     }
+
+    // Validate overs format
+    const validateOvers = (overs: number): boolean => {
+      if (overs < 0) return false
+      const [wholePart, decimalPart] = overs.toString().split('.')
+      if (decimalPart && parseInt(decimalPart) >= 6) return false
+      return true
+    }
     
-    if (homeScore.wickets > 10 || awayScore.wickets > 10) {
+    if (
+      homeScore.wickets > 10 || 
+      awayScore.wickets > 10 ||
+      !validateOvers(homeScore.overs) ||
+      !validateOvers(awayScore.overs)
+    ) {
       throw createError({
         statusCode: 400,
-        message: 'Wickets cannot be more than 10'
+        message: 'Invalid score data'
       })
     }
     
     // Find match and update scores
-    const match = await Match.findById(id)
+    const match = await Match.findById(id).populate('tournament')
     if (!match) {
       throw createError({
         statusCode: 404,
@@ -45,6 +59,11 @@ export default defineEventHandler(async (event) => {
     
     match.updatedAt = new Date()
     await match.save()
+
+    // Update tournament stats
+    if (match.tournament) {
+      await updateTournamentStats(match.tournament._id)
+    }
     
     return match
   } catch (error: any) {

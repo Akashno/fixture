@@ -1,5 +1,5 @@
 <template>
-  <div class="py-8">
+  <div class="py-8 px-4">
 <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Tournaments</h1>
       <Button @click="isDialogOpen = true" :disabled="isLoading">Create Tournament</Button>

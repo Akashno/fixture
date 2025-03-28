@@ -6,11 +6,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-// import { useToast } from '@/components/ui/use-toast'
 
 interface MatchScore {
   runs: number
   wickets: number
+  overs: number
 }
 
 const props = defineProps<{
@@ -38,10 +38,9 @@ const emit = defineEmits<{
   (e: 'saveResult', matchId: string, homeScore: MatchScore, awayScore: MatchScore): void
 }>()
 
-const homeScore = ref<MatchScore>(props.match.homeScore || { runs: 0, wickets: 0 })
-const awayScore = ref<MatchScore>(props.match.awayScore || { runs: 0, wickets: 0 })
+const homeScore = ref<MatchScore>(props.match.homeScore || { runs: 0, wickets: 0, overs: 0 })
+const awayScore = ref<MatchScore>(props.match.awayScore || { runs: 0, wickets: 0, overs: 0 })
 const isLoading = ref(false)
-// const { toast } = useToast()
 
 const winner = computed(() => {
   if (homeScore.value.runs > awayScore.value.runs) {
@@ -49,20 +48,26 @@ const winner = computed(() => {
   } else if (awayScore.value.runs > homeScore.value.runs) {
     return props.match.awayTeam.name
   }
-  return homeScore.value.runs === awayScore.value.runs ? 'Draw' : null
+  return  null
 })
 
 const runDifference = computed(() => {
   return Math.abs(homeScore.value.runs - awayScore.value.runs)
 })
 
+const validateOvers = (overs: number): boolean => {
+  if (overs < 0) return false
+  const [wholePart, decimalPart] = overs.toString().split('.')
+  if (decimalPart && parseInt(decimalPart) >= 6) return false
+  return true
+}
+
 const handleSubmit = async () => {
   if (homeScore.value.wickets > 10 || awayScore.value.wickets > 10) {
-    // toast({
-    //   title: 'Error',
-    //   description: 'Wickets cannot be more than 10',
-    //   variant: 'destructive'
-    // })
+    return
+  }
+
+  if (!validateOvers(homeScore.value.overs) || !validateOvers(awayScore.value.overs)) {
     return
   }
 
@@ -77,19 +82,12 @@ const handleSubmit = async () => {
     })
 
     if (data.value) {
-      // toast({
-      //   title: 'Success',
-      //   description: 'Match result saved successfully'
-      // })
       emit('saveResult', props.match._id, homeScore.value, awayScore.value)
       emit('update:isOpen', false)
+      refreshNuxtData('fixtures')
+      refreshNuxtData('points')
     }
   } catch (error) {
-    // toast({
-    //   title: 'Error',
-    //   description: 'Failed to save match result',
-    //   variant: 'destructive'
-    // })
   } finally {
     isLoading.value = false
   }
@@ -109,23 +107,36 @@ const handleSubmit = async () => {
             <div>
               <p class="font-medium">{{ match.homeTeam.name }}</p>
               <p class="text-sm text-gray-600">{{ match.homeTeam.owner }}</p>
-              <div class="mt-2 flex items-center gap-2">
-                <input
-                  v-model.number="homeScore.runs"
-                  type="number"
-                  min="0"
-                  placeholder="Runs"
-                  class="w-20 px-2 py-1 border rounded"
-                >
-                <span class="text-gray-500">/</span>
-                <input
-                  v-model.number="homeScore.wickets"
-                  type="number"
-                  min="0"
-                  max="10"
-                  placeholder="Wickets"
-                  class="w-20 px-2 py-1 border rounded"
-                >
+              <div class="mt-2 space-y-2">
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="homeScore.runs"
+                    type="number"
+                    min="0"
+                    placeholder="Runs"
+                    class="w-20 px-2 py-1 border rounded"
+                  >
+                  <span class="text-gray-500">/</span>
+                  <input
+                    v-model.number="homeScore.wickets"
+                    type="number"
+                    min="0"
+                    max="10"
+                    placeholder="Wickets"
+                    class="w-20 px-2 py-1 border rounded"
+                  >
+                </div>
+                <div class="flex items-center gap-2">
+                  <input
+                    v-model.number="homeScore.overs"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="Overs"
+                    class="w-20 px-2 py-1 border rounded"
+                  >
+                  <span class="text-xs text-gray-500">overs</span>
+                </div>
               </div>
             </div>
           </div>
@@ -137,23 +148,36 @@ const handleSubmit = async () => {
             <div>
               <p class="font-medium">{{ match.awayTeam.name }}</p>
               <p class="text-sm text-gray-600">{{ match.awayTeam.owner }}</p>
-              <div class="mt-2 flex items-center gap-2 justify-end">
-                <input
-                  v-model.number="awayScore.runs"
-                  type="number"
-                  min="0"
-                  placeholder="Runs"
-                  class="w-20 px-2 py-1 border rounded"
-                >
-                <span class="text-gray-500">/</span>
-                <input
-                  v-model.number="awayScore.wickets"
-                  type="number"
-                  min="0"
-                  max="10"
-                  placeholder="Wickets"
-                  class="w-20 px-2 py-1 border rounded"
-                >
+              <div class="mt-2 space-y-2">
+                <div class="flex items-center gap-2 justify-end">
+                  <input
+                    v-model.number="awayScore.runs"
+                    type="number"
+                    min="0"
+                    placeholder="Runs"
+                    class="w-20 px-2 py-1 border rounded"
+                  >
+                  <span class="text-gray-500">/</span>
+                  <input
+                    v-model.number="awayScore.wickets"
+                    type="number"
+                    min="0"
+                    max="10"
+                    placeholder="Wickets"
+                    class="w-20 px-2 py-1 border rounded"
+                  >
+                </div>
+                <div class="flex items-center gap-2 justify-end">
+                  <input
+                    v-model.number="awayScore.overs"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="Overs"
+                    class="w-20 px-2 py-1 border rounded"
+                  >
+                  <span class="text-xs text-gray-500">overs</span>
+                </div>
               </div>
             </div>
           </div>
@@ -180,7 +204,7 @@ const handleSubmit = async () => {
           </div>
         </div>
         <div class="mt-6 flex justify-center w-full md:justify-end">
-          <Button :disabled="isLoading" @click="handleSubmit">
+          <Button :disabled="isLoading || !winner" @click="handleSubmit">
             {{ isLoading ? 'Saving...' : 'Save Result' }}
           </Button>
         </div>
