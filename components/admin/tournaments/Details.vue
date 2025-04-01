@@ -39,10 +39,10 @@ const handleMatchClick = (match) => {
 <template>
   <div class="container mx-auto py-6">
     <div v-if="tournament" class="space-y-6">
-      <Tabs defaultValue="points" class="w-full">
+      <Tabs defaultValue="fixtures" class="w-full">
         <TabsList>
-          <TabsTrigger value="points">Points Table</TabsTrigger>
           <TabsTrigger value="fixtures">Fixtures</TabsTrigger>
+          <TabsTrigger value="points">Points Table</TabsTrigger>
         </TabsList>
         <TabsContent value="points">
           <div class="rounded-lg border p-4">
